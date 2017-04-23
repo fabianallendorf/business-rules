@@ -1,60 +1,66 @@
 from .fields import FIELD_NO_INPUT
 
 
+class InvalidRuleDefinition(Exception):
+    pass
+
+
+def get_value(rule_list, defined_variables, defined_actions):
+    """ Run Rules till first will be triggered and returns its actions results.
+    Exception will be raised if more than one action was executed by the triggered rule.
+    Returns:
+        value returned by executed action
+    """
+    rule_results = run_all(rule_list, defined_variables, defined_actions, stop_on_first_trigger=True)
+    if len(rule_results) == 0:
+        raise InvalidRuleDefinition(
+            'No rule executed or no action found in matching rule'
+        )
+    actions_result = rule_results[0]
+    if len(actions_result) != 1:
+        raise InvalidRuleDefinition(
+            'Expected only one action to be executed. Executed {} actions'.format(
+                actions_result
+            )
+        )
+    return actions_result[_get_first_key_in_dictionary(actions_result)]
+
+
+def _get_first_key_in_dictionary(dictionary):
+    return list(dictionary)[0]
+
+
 def run_all(rule_list,
             defined_variables,
             defined_actions,
             stop_on_first_trigger=False):
-    rule_was_triggered = False
-    for rule in rule_list:
-        result = run(rule, defined_variables, defined_actions)
-        if result:
-            rule_was_triggered = True
-            if stop_on_first_trigger:
-                return True
-    return rule_was_triggered
-
-
-def run_all_with_results(rule_list, defined_variables, defined_actions,
-        stop_on_first_trigger=False):
-    '''Run all Rules and return the rules actions results
+    """ Run all Rules and return the rules actions results
     Returns:
         rule_results(list): list of dictionaries. Each dictionary is a rule
         actions' results
-    '''
+    """
     rule_results = []
     for rule in rule_list:
-        actionsResults = run_and_get_results(rule, defined_variables,
-            defined_actions)
-        if actionsResults:
-            rule_results.append(actionsResults)
+        actions_results = run(rule, defined_variables, defined_actions)
+        if actions_results:
+            rule_results.append(actions_results)
             if stop_on_first_trigger:
                 return rule_results
     return rule_results
 
 
-def run_and_get_results(rule, defined_variables, defined_actions):
-    '''Run the rule and get the action returned result
+def run(rule, defined_variables, defined_actions):
+    """ Run the rule and get the action returned result
     Attributes:
         rule(dict): the rule dictionary
         defined_variables(BaseVariables): the defined set of variables object
         defined_actions(BaseActions): the actions object
-    '''
-    actions_results = {}
-    conditions, actions = rule.get('conditions'), rule.get('actions')
-    if conditions and actions:
-        rule_triggered = check_conditions_recursively(conditions, defined_variables)
-        if rule_triggered:
-            actions_results = do_actions(actions, defined_actions)
-    return actions_results
-
-def run(rule, defined_variables, defined_actions):
+    """
     conditions, actions = rule['conditions'], rule['actions']
     rule_triggered = check_conditions_recursively(conditions, defined_variables)
     if rule_triggered:
-        do_actions(actions, defined_actions)
-        return True
-    return False
+        return do_actions(actions, defined_actions)
+    return {}
 
 
 def check_conditions_recursively(conditions, defined_variables):
@@ -79,6 +85,7 @@ def check_conditions_recursively(conditions, defined_variables):
         assert not ('any' in keys or 'all' in keys)
         return check_condition(conditions, defined_variables)
 
+
 def check_condition(condition, defined_variables):
     """ Checks a single rule condition - the condition will be made up of
     variables, values, and the comparison operator. The defined_variables
@@ -87,6 +94,7 @@ def check_condition(condition, defined_variables):
     name, op, value = condition['name'], condition['operator'], condition['value']
     operator_type = _get_variable_value(defined_variables, name)
     return _do_operator_comparison(operator_type, op, value)
+
 
 def _get_variable_value(defined_variables, name):
     """ Call the function provided on the defined_variables object with the
@@ -121,7 +129,7 @@ def _do_operator_comparison(operator_type, operator_name, comparison_value):
 
 
 def do_actions(actions, defined_actions):
-    ''' Run the actions
+    """ Run the actions
     Attributes:
         actions(list): list of dictionaries of actions. e.g: [
             { "name": "put_on_sale",
@@ -129,9 +137,9 @@ def do_actions(actions, defined_actions):
             }
         ]
     Returns:
-        actionsResults(dict): Dictionary of actions results
+        actions_results(dict): Dictionary of actions results
             e.g: {"put_on_sale: [product1, product2, ...]}
-    '''
+    """
     actions_results = {}
     for action in actions:
         method_name = action['name']
@@ -145,5 +153,4 @@ def do_actions(actions, defined_actions):
         method = getattr(defined_actions, method_name, fallback)
         actions_results[method_name] = method(**params)
 
-    return dict((method_name, actions_results[method_name]) for method_name
-        in actions_results.keys() if actions_results.get(method_name))
+    return actions_results

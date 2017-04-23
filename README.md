@@ -219,6 +219,20 @@ for product in Products.objects.all():
            )
 ```
 
+### Get value returned by action
+
+```python
+from business_rules import get_value
+
+rules = _some_function_to_receive_from_client()
+
+product = Products.objects.first()
+get_value(rule_list=rules,
+        defined_variables=ProductVariables(product),
+        defined_actions=ProductActions(product),
+       )
+```
+
 ## API
 
 #### Variable Types and Decorators:
