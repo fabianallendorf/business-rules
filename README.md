@@ -233,6 +233,8 @@ get_value(rule_list=rules,
        )
 ```
 
+In business_rules.actions you can find ReturnNumericActions and ReturnTextActions.
+
 ## API
 
 #### Variable Types and Decorators:
