@@ -1,4 +1,4 @@
-__version__ = '1.0.1'
+__version__ = '1.0.2rc'
 
 from .engine import run_all
 from .engine import get_value
