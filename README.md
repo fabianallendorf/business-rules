@@ -265,7 +265,6 @@ Note: to compare floating point equality we just check that the difference is le
 `@string_rule_variable` operators:
 
 * `equal_to`
-* `not_equal_to`
 * `starts_with`
 * `ends_with`
 * `contains`
@@ -320,5 +319,5 @@ pip install -e .
 ```
 
 [business-rules-lib]: https://github.com/venmo/business-rules
-[build-status-image]: https://travis-ci.org/maciejpolanczyk/business-rules-ext.svg?branch=master
-[travis]: https://travis-ci.org/maciejpolanczyk/business-rules-ext?branch=master
+[build-status-image]: https://travis-ci.org/maciejpolanczyk/business-rules.svg?branch=master
+[travis]: https://travis-ci.org/maciejpolanczyk/business-rules?branch=master
