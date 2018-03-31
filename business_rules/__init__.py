@@ -1,5 +1,6 @@
-__version__ = '1.0.2rc1'
+__version__ = '1.0.12'
 
+import logging
 from .engine import run_all
 from .engine import get_value
 from .utils import export_rule_data
@@ -8,3 +9,5 @@ from .utils import export_rule_data
 assert run_all
 assert get_value
 assert export_rule_data
+
+logging.getLogger(__name__).addHandler(logging.NullHandler())

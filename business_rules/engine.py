@@ -1,4 +1,7 @@
 from .fields import FIELD_NO_INPUT
+import logging
+
+LOG = logging.getLogger(__name__)
 
 
 class InvalidRuleDefinition(Exception):
@@ -39,13 +42,16 @@ def run_all(rule_list,
         rule_results(list): list of dictionaries. Each dictionary is a rule
         actions' results
     """
+    LOG.debug("business-rules starting")
     rule_results = []
     for rule in rule_list:
         actions_results = run(rule, defined_variables, defined_actions)
         if actions_results:
             rule_results.append(actions_results)
             if stop_on_first_trigger:
+                LOG.debug("business-rules finished\n")
                 return rule_results
+    LOG.debug("business-rules finished\n")
     return rule_results
 
 
@@ -59,6 +65,9 @@ def run(rule, defined_variables, defined_actions):
     conditions, actions = rule['conditions'], rule['actions']
     rule_triggered = check_conditions_recursively(conditions, defined_variables)
     if rule_triggered:
+        LOG.debug("business-rules rule triggered")
+        LOG.debug("conditions: <{}>".format(conditions))
+        LOG.debug("actions: <{}>".format(actions))
         return do_actions(actions, defined_actions)
     return {}
 
@@ -93,6 +102,10 @@ def check_condition(condition, defined_variables):
     """
     name, op, value = condition['name'], condition['operator'], condition['value']
     operator_type = _get_variable_value(defined_variables, name)
+    if 'value_is_variable' in condition and condition['value_is_variable']:
+        variable_name = value
+        temp_value = _get_variable_value(defined_variables, variable_name)
+        value = temp_value.value
     return _do_operator_comparison(operator_type, op, value)
 
 

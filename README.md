@@ -263,6 +263,7 @@ Note: to compare floating point equality we just check that the difference is le
 `@string_rule_variable` operators:
 
 * `equal_to`
+* `not_equal_to`
 * `starts_with`
 * `ends_with`
 * `contains`
@@ -305,4 +306,13 @@ Open up a pull request, making sure to add tests for any new functionality. To s
 $ mkvirtualenv business-rules
 $ pip install -r dev-requirements.txt
 $ nosetests
+```
+
+### Getting into the virtual environment
+
+```bash
+$ virtualenv business-rules
+. business-rules/bin/activate
+pip install -r dev-requirements.txt
+pip install -e .
 ```
