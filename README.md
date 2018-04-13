@@ -1,7 +1,7 @@
 business-rules
 ==============
 
-[[![build-status-image]][travis]
+[![build-status-image]][travis]
 
 This is a fork of [business-rules][business-rules-lib] from version 1.0.1. As original project is not updated for last few years I created this fork to merge fixes and new features.
 
